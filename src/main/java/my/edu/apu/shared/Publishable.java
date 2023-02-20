@@ -6,8 +6,8 @@ public abstract class Publishable implements Serializable {
 
     @SuppressWarnings("unchecked")
     public static <T> T fromBytes(byte[] bytes) {
-        try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes)) {
-            ObjectInput in = new ObjectInputStream(bis);
+        try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+             ObjectInput in = new ObjectInputStream(bis)) {
             return (T) in.readObject();
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
