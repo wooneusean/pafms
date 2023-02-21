@@ -6,15 +6,15 @@ import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
 public class ExchangeConsumer implements Runnable {
-    String exchangeName;
-    Channel channel;
-    BuiltinExchangeType exchangeType = BuiltinExchangeType.FANOUT;
-    String routingKey = "";
-    String queueName = "";
-    boolean autoAck = true;
-    DeliverCallback deliveryCallback = (consumerTag, delivery) -> {
+    public String exchangeName;
+    public Channel channel;
+    public BuiltinExchangeType exchangeType = BuiltinExchangeType.FANOUT;
+    public String routingKey = "";
+    public String queueName = "";
+    public boolean autoAck = true;
+    public DeliverCallback deliveryCallback = (consumerTag, delivery) -> {
     };
-    CancelCallback cancelCallback = (consumerTag) -> {
+    public CancelCallback cancelCallback = (consumerTag) -> {
     };
 
     @Override

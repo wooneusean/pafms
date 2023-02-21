@@ -21,7 +21,7 @@ public class FlightController {
                         throw new RuntimeException(e);
                     }
                 }))
-                .withRoutingKey(Constants.CABIN_CONSUMER_ROUTING_KEY)
+                .withRoutingKey(Constants.CABIN_CONSUMER_TOPIC)
                 .withExchangeType(BuiltinExchangeType.DIRECT)
                 .build();
 
@@ -38,7 +38,7 @@ public class FlightController {
                         throw new RuntimeException(e);
                     }
                 }))
-                .withRoutingKey(Constants.ALTITUDE_CONSUMER_ROUTING_KEY)
+                .withRoutingKey(Constants.ALTITUDE_CONSUMER_TOPIC)
                 .withExchangeType(BuiltinExchangeType.DIRECT)
                 .build();
 

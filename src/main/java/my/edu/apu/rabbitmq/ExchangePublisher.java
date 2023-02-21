@@ -11,14 +11,14 @@ import java.util.function.Consumer;
 
 public class ExchangePublisher implements Runnable {
 
-    String exchangeName;
-    Channel channel;
-    BuiltinExchangeType exchangeType = BuiltinExchangeType.FANOUT;
-    String routingKey = "";
-    boolean mandatory = false;
-    Consumer<ExchangePublisher> messageGenerator = (publisher) -> {
+    public boolean mandatory = false;
+    public String exchangeName;
+    public Channel channel;
+    public String routingKey = "";
+    public BuiltinExchangeType exchangeType = BuiltinExchangeType.FANOUT;
+    public Consumer<ExchangePublisher> messageGenerator = (publisher) -> {
     };
-    AMQP.BasicProperties basicProperties = null;
+    public AMQP.BasicProperties basicProperties = null;
 
     public ExchangePublisher() {
     }
@@ -41,7 +41,6 @@ public class ExchangePublisher implements Runnable {
 
     public static class Builder {
         String exchangeName;
-        Channel channel;
         BuiltinExchangeType exchangeType = BuiltinExchangeType.FANOUT;
         String routingKey = "";
         boolean mandatory = false;
@@ -77,7 +76,7 @@ public class ExchangePublisher implements Runnable {
             return this;
         }
 
-        public Builder withBasicProperties(AMQP.BasicProperties basicProperties) {
+        public Builder withBasicPropertiesProvider(AMQP.BasicProperties basicProperties) {
             this.basicProperties = basicProperties;
             return this;
         }
