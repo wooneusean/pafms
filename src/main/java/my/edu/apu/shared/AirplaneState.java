@@ -1,5 +1,7 @@
 package my.edu.apu.shared;
 
+import my.edu.apu.rabbitmq.Publishable;
+
 public class AirplaneState extends Publishable {
     public float engineThrottle, wingAngle, tailAngle;
     public boolean landingGearDeployed, oxygenMasksDeployed;

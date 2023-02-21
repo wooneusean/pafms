@@ -1,4 +1,4 @@
-package my.edu.apu.shared;
+package my.edu.apu.rabbitmq;
 
 import java.io.*;
 
