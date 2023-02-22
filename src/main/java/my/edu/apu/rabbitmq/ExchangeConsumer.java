@@ -4,18 +4,83 @@ import com.rabbitmq.client.*;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Function;
 
 public class ExchangeConsumer implements Runnable {
-    public String exchangeName;
-    public Channel channel;
-    public BuiltinExchangeType exchangeType = BuiltinExchangeType.FANOUT;
-    public String routingKey = "";
-    public String queueName = "";
-    public boolean autoAck = true;
-    public DeliverCallback deliveryCallback = (consumerTag, delivery) -> {
+    protected String exchangeName;
+    protected Channel channel;
+    protected BuiltinExchangeType exchangeType = BuiltinExchangeType.FANOUT;
+    protected String routingKey = "";
+    protected String queueName = "";
+    protected boolean autoAck = true;
+    protected DeliverCallback deliveryCallback = (consumerTag, delivery) -> {
     };
-    public CancelCallback cancelCallback = (consumerTag) -> {
+    protected CancelCallback cancelCallback = (consumerTag) -> {
     };
+
+    public String getExchangeName() {
+        return exchangeName;
+    }
+
+    public void setExchangeName(String exchangeName) {
+        this.exchangeName = exchangeName;
+    }
+
+    public Channel getChannel() {
+        return channel;
+    }
+
+    public void setChannel(Channel channel) {
+        this.channel = channel;
+    }
+
+    public BuiltinExchangeType getExchangeType() {
+        return exchangeType;
+    }
+
+    public void setExchangeType(BuiltinExchangeType exchangeType) {
+        this.exchangeType = exchangeType;
+    }
+
+    public String getRoutingKey() {
+        return routingKey;
+    }
+
+    public void setRoutingKey(String routingKey) {
+        this.routingKey = routingKey;
+    }
+
+    public String getQueueName() {
+        return queueName;
+    }
+
+    public void setQueueName(String queueName) {
+        this.queueName = queueName;
+    }
+
+    public boolean isAutoAck() {
+        return autoAck;
+    }
+
+    public void setAutoAck(boolean autoAck) {
+        this.autoAck = autoAck;
+    }
+
+    public DeliverCallback getDeliveryCallback() {
+        return deliveryCallback;
+    }
+
+    public void setDeliveryCallback(DeliverCallback deliveryCallback) {
+        this.deliveryCallback = deliveryCallback;
+    }
+
+    public CancelCallback getCancelCallback() {
+        return cancelCallback;
+    }
+
+    public void setCancelCallback(CancelCallback cancelCallback) {
+        this.cancelCallback = cancelCallback;
+    }
 
     @Override
     public void run() {
@@ -27,15 +92,13 @@ public class ExchangeConsumer implements Runnable {
     }
 
     public static class Builder {
-        String exchangeName;
-        Channel channel;
-        BuiltinExchangeType exchangeType = BuiltinExchangeType.FANOUT;
-        String routingKey = "";
-        String queueName = "";
-        boolean autoAck = true;
-        DeliverCallback deliveryCallback = (consumerTag, delivery) -> {
+        protected String exchangeName;
+        protected BuiltinExchangeType exchangeType = BuiltinExchangeType.FANOUT;
+        protected String routingKey = "";
+        protected boolean autoAck = true;
+        protected Function<ExchangeConsumer, DeliverCallback> deliveryCallbackProvider = builder -> (s, delivery) -> {
         };
-        CancelCallback cancelCallback = (consumerTag) -> {
+        protected Function<ExchangeConsumer, CancelCallback> cancelCallbackProvider = builder -> s -> {
         };
 
         public Builder() {
@@ -61,31 +124,32 @@ public class ExchangeConsumer implements Runnable {
             return this;
         }
 
-        public Builder withDeliveryCallback(DeliverCallback deliveryCallback) {
-            this.deliveryCallback = deliveryCallback;
+        public Builder withDeliveryCallback(Function<ExchangeConsumer, DeliverCallback> deliveryCallbackProvider) {
+            this.deliveryCallbackProvider = deliveryCallbackProvider;
             return this;
         }
 
-        public Builder withCancelCallback(CancelCallback cancelCallback) {
-            this.cancelCallback = cancelCallback;
+        public Builder withCancelCallback(Function<ExchangeConsumer, CancelCallback> cancelCallbackProvider) {
+            this.cancelCallbackProvider = cancelCallbackProvider;
             return this;
         }
 
         public ExchangeConsumer build() throws IOException, TimeoutException {
             ExchangeConsumer consumer = new ExchangeConsumer();
-            consumer.exchangeName = exchangeName;
-            consumer.exchangeType = exchangeType;
-            consumer.routingKey = routingKey;
-            consumer.autoAck = autoAck;
-            consumer.deliveryCallback = deliveryCallback;
-            consumer.cancelCallback = cancelCallback;
+            consumer.setExchangeName(exchangeName);
+            consumer.setExchangeType(exchangeType);
+            consumer.setRoutingKey(routingKey);
+            consumer.setAutoAck(autoAck);
 
             Connection con = RabbitMQConnectionProvider.getInstance().getConnection();
-            consumer.channel = con.createChannel();
-            consumer.channel.exchangeDeclare(exchangeName, exchangeType);
+            consumer.setChannel(con.createChannel());
+            consumer.getChannel().exchangeDeclare(exchangeName, exchangeType);
 
-            consumer.queueName = consumer.channel.queueDeclare().getQueue();
-            consumer.channel.queueBind(queueName, exchangeName, routingKey);
+            consumer.setQueueName(consumer.getChannel().queueDeclare().getQueue());
+            consumer.getChannel().queueBind(consumer.getQueueName(), exchangeName, routingKey);
+
+            consumer.setDeliveryCallback(deliveryCallbackProvider.apply(consumer));
+            consumer.setCancelCallback(cancelCallbackProvider.apply(consumer));
             return consumer;
         }
     }
