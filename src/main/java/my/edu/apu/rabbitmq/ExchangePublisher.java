@@ -4,19 +4,21 @@ import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.BuiltinExchangeType;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+@Getter
+@Setter
 public class ExchangePublisher implements Runnable {
-    protected HashMap<String, String> userData = new HashMap<>();
     protected boolean mandatory = false;
     protected String exchangeName;
     protected Channel channel;
-    protected String routingKey = "";
+    protected String targetRoutingKey = "";
     protected BuiltinExchangeType exchangeType = BuiltinExchangeType.FANOUT;
     protected Consumer<ExchangePublisher> messageGenerator = (publisher) -> {
     };
@@ -25,77 +27,35 @@ public class ExchangePublisher implements Runnable {
     public ExchangePublisher() {
     }
 
-    public boolean isMandatory() {
-        return mandatory;
-    }
-
-    public void setMandatory(boolean mandatory) {
-        this.mandatory = mandatory;
-    }
-
-    public HashMap<String, String> getUserData() {
-        return userData;
-    }
-
-    public void setUserData(HashMap<String, String> userData) {
-        this.userData = userData;
-    }
-
-    public String getExchangeName() {
-        return exchangeName;
-    }
-
-    public void setExchangeName(String exchangeName) {
-        this.exchangeName = exchangeName;
-    }
-
-    public Channel getChannel() {
-        return channel;
-    }
-
-    public void setChannel(Channel channel) {
-        this.channel = channel;
-    }
-
-    public String getRoutingKey() {
-        return routingKey;
-    }
-
-    public void setRoutingKey(String routingKey) {
-        this.routingKey = routingKey;
-    }
-
-    public BuiltinExchangeType getExchangeType() {
-        return exchangeType;
-    }
-
-    public void setExchangeType(BuiltinExchangeType exchangeType) {
-        this.exchangeType = exchangeType;
-    }
-
-    public Consumer<ExchangePublisher> getMessageGenerator() {
-        return messageGenerator;
-    }
-
-    public void setMessageGenerator(Consumer<ExchangePublisher> messageGenerator) {
-        this.messageGenerator = messageGenerator;
-    }
-
-    public AMQP.BasicProperties getBasicProperties() {
-        return basicProperties;
-    }
-
-    public void setBasicProperties(AMQP.BasicProperties basicProperties) {
-        this.basicProperties = basicProperties;
-    }
-
     public void publish(byte[] data) throws IOException {
         channel.basicPublish(
                 exchangeName,
-                routingKey,
+                targetRoutingKey,
                 mandatory,
                 basicProperties,
                 data
+        );
+        System.out.printf(
+                "[.] Sent out a message of %d bytes to [%s] on exchange [%s]%n",
+                data.length,
+                targetRoutingKey,
+                exchangeName
+        );
+    }
+
+    public void publish(byte[] data, String consumerRoutingKey) throws IOException {
+        channel.basicPublish(
+                exchangeName,
+                consumerRoutingKey,
+                mandatory,
+                basicProperties,
+                data
+        );
+        System.out.printf(
+                "[.] Sent out a message of %d bytes to [%s] on exchange [%s]%n",
+                data.length,
+                consumerRoutingKey,
+                exchangeName
         );
     }
 
@@ -108,7 +68,7 @@ public class ExchangePublisher implements Runnable {
     public static class Builder {
         String exchangeName;
         BuiltinExchangeType exchangeType = BuiltinExchangeType.FANOUT;
-        String routingKey = "";
+        String targetRoutingKey = "";
         boolean mandatory = false;
         Consumer<ExchangePublisher> messageGenerator = (publisher) -> {
         };
@@ -127,8 +87,8 @@ public class ExchangePublisher implements Runnable {
             return this;
         }
 
-        public Builder withRoutingKey(String routingKey) {
-            this.routingKey = routingKey;
+        public Builder withTargetRoutingKey(String routingKey) {
+            this.targetRoutingKey = routingKey;
             return this;
         }
 
@@ -151,7 +111,7 @@ public class ExchangePublisher implements Runnable {
             ExchangePublisher publisher = new ExchangePublisher();
             publisher.exchangeName = exchangeName;
             publisher.exchangeType = exchangeType;
-            publisher.routingKey = routingKey;
+            publisher.targetRoutingKey = targetRoutingKey;
             publisher.mandatory = mandatory;
             publisher.messageGenerator = messageGenerator;
 

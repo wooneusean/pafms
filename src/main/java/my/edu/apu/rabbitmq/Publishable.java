@@ -2,10 +2,10 @@ package my.edu.apu.rabbitmq;
 
 import java.io.*;
 
-public abstract class Publishable implements Serializable {
+public interface Publishable extends Serializable {
 
     @SuppressWarnings("unchecked")
-    public static <T> T fromBytes(byte[] bytes) {
+    static <T extends Publishable> T fromBytes(byte[] bytes) {
         try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
              ObjectInput in = new ObjectInputStream(bis)) {
             return (T) in.readObject();
@@ -14,7 +14,7 @@ public abstract class Publishable implements Serializable {
         }
     }
 
-    public byte[] getBytes() {
+    default byte[] getBytes() {
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
              ObjectOutputStream out = new ObjectOutputStream(bos)) {
             out.writeObject(this);

@@ -1,11 +1,15 @@
 package my.edu.apu.rabbitmq;
 
 import com.rabbitmq.client.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 
+@Getter
+@Setter
 public class ExchangeConsumer implements Runnable {
     protected String exchangeName;
     protected Channel channel;
@@ -18,74 +22,11 @@ public class ExchangeConsumer implements Runnable {
     protected CancelCallback cancelCallback = (consumerTag) -> {
     };
 
-    public String getExchangeName() {
-        return exchangeName;
-    }
-
-    public void setExchangeName(String exchangeName) {
-        this.exchangeName = exchangeName;
-    }
-
-    public Channel getChannel() {
-        return channel;
-    }
-
-    public void setChannel(Channel channel) {
-        this.channel = channel;
-    }
-
-    public BuiltinExchangeType getExchangeType() {
-        return exchangeType;
-    }
-
-    public void setExchangeType(BuiltinExchangeType exchangeType) {
-        this.exchangeType = exchangeType;
-    }
-
-    public String getRoutingKey() {
-        return routingKey;
-    }
-
-    public void setRoutingKey(String routingKey) {
-        this.routingKey = routingKey;
-    }
-
-    public String getQueueName() {
-        return queueName;
-    }
-
-    public void setQueueName(String queueName) {
-        this.queueName = queueName;
-    }
-
-    public boolean isAutoAck() {
-        return autoAck;
-    }
-
-    public void setAutoAck(boolean autoAck) {
-        this.autoAck = autoAck;
-    }
-
-    public DeliverCallback getDeliveryCallback() {
-        return deliveryCallback;
-    }
-
-    public void setDeliveryCallback(DeliverCallback deliveryCallback) {
-        this.deliveryCallback = deliveryCallback;
-    }
-
-    public CancelCallback getCancelCallback() {
-        return cancelCallback;
-    }
-
-    public void setCancelCallback(CancelCallback cancelCallback) {
-        this.cancelCallback = cancelCallback;
-    }
-
     @Override
     public void run() {
         try {
             channel.basicConsume(queueName, autoAck, deliveryCallback, cancelCallback);
+            System.out.printf("[.] %s is listening on exchange '%s' for messages.%n", routingKey, exchangeName);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
