@@ -6,10 +6,10 @@ import jakarta.persistence.Persistence;
 
 public class HibernateSessionProvider {
     private static volatile HibernateSessionProvider instance;
-    private final EntityManagerFactory sessionFactory;
+    private final EntityManagerFactory entityManagerFactory;
 
     private HibernateSessionProvider() {
-        sessionFactory = Persistence.createEntityManagerFactory("my.edu.apu.jpa");
+        entityManagerFactory = Persistence.createEntityManagerFactory("my.edu.apu.jpa");
     }
 
     public static HibernateSessionProvider getInstance() {
@@ -27,6 +27,10 @@ public class HibernateSessionProvider {
     }
 
     public EntityManager getEntityManager() {
-        return sessionFactory.createEntityManager();
+        return entityManagerFactory.createEntityManager();
+    }
+
+    public EntityManagerFactory getEntityManagerFactory() {
+        return entityManagerFactory;
     }
 }

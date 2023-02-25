@@ -11,27 +11,25 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeoutException;
 
-public class WingFlaps {
-
+public class LandingGear {
     public static void main(String[] args) throws IOException, TimeoutException {
-        ExchangeConsumer wingFlapInstructionConsumer = new ExchangeConsumer.Builder()
+        ExchangeConsumer landingGearConsumer = new ExchangeConsumer.Builder()
                 .withExchangeName(Constants.CONTROL_TO_ACTUATOR_EXCHANGE)
                 .withExchangeType(BuiltinExchangeType.DIRECT)
-                .withRoutingKey(Constants.WING_FLAPS_ROUTING_KEY)
+                .withRoutingKey(Constants.LANDING_GEAR_ROUTING_KEY)
                 .withDeliveryCallback(c -> (s, delivery) -> {
                     int value = Integer.parseInt(new String(delivery.getBody(), StandardCharsets.UTF_8));
-                    System.out.printf(
-                            "[.] Setting wing flap angle to '%s'%n",
-                            value
-                    );
+                    String landingGearState = value == 1 ? "DOWN" : "UP";
+                    System.out.println("[i] Landing gear is set to " + landingGearState);
+
                     EntityManager em = HibernateSessionProvider.getInstance().getEntityManager();
                     em.getTransaction().begin();
                     AirplaneState state = em.find(AirplaneState.class, 1);
-                    state.setWingAngle(value);
+                    state.setLandingGearDeployed(value != 0);
                     em.getTransaction().commit();
                 })
                 .build();
 
-        new Thread(wingFlapInstructionConsumer).start();
+        new Thread(landingGearConsumer).start();
     }
 }

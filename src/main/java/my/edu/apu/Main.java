@@ -15,10 +15,8 @@ public class Main {
 
         // in km/h
         state.setSpeed(350);
-        state.setTargetSpeed(350);
 
         // in feet
-        state.setTargetAltitude(25000);
         state.setAltitude(25000);
 
         // in degrees, ideal is 0

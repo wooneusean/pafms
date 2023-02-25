@@ -11,8 +11,6 @@ import java.io.Serializable;
 @Table(name = "AirplaneState")
 @Getter
 @Setter
-@NamedQuery(name = "AirplaneState.findFirst",
-        query = "SELECT s FROM AirplaneState s")
 public class AirplaneState implements Serializable {
     @Column
     protected int engineThrottle;
@@ -29,10 +27,6 @@ public class AirplaneState implements Serializable {
     @Column
     protected int speed;
     @Column
-    protected int targetAltitude;
-    @Column
-    protected int targetSpeed;
-    @Column
     protected boolean landingGearDeployed;
     @Column
     protected boolean oxygenMasksDeployed;
@@ -40,11 +34,5 @@ public class AirplaneState implements Serializable {
     protected Long id;
 
     public AirplaneState() {
-    }
-
-    public static AirplaneState findFirst() {
-        EntityManager entityManager = HibernateSessionProvider.getInstance().getEntityManager();
-        return entityManager.createNamedQuery("AirplaneState.findFirst", AirplaneState.class)
-                            .getSingleResult();
     }
 }

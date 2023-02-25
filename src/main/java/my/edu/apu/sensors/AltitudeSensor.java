@@ -1,7 +1,9 @@
 package my.edu.apu.sensors;
 
 import com.rabbitmq.client.BuiltinExchangeType;
+import jakarta.persistence.EntityManager;
 import my.edu.apu.rabbitmq.ExchangePublisher;
+import my.edu.apu.rabbitmq.HibernateSessionProvider;
 import my.edu.apu.shared.AirplaneState;
 import my.edu.apu.shared.Constants;
 import my.edu.apu.shared.SensoryToControlPacket;
@@ -16,7 +18,6 @@ import java.util.concurrent.TimeoutException;
 
 
 public class AltitudeSensor {
-
     public static void main(String[] args) throws IOException, TimeoutException {
         Logger logger = LoggerFactory.getLogger(AltitudeSensor.class);
         ExchangePublisher altitudePublisher = new ExchangePublisher.Builder()
@@ -24,11 +25,22 @@ public class AltitudeSensor {
                 .withExchangeType(BuiltinExchangeType.DIRECT)
                 .withTargetRoutingKey(Constants.FLIGHT_CONTROL_ROUTING_KEY)
                 .withMessageGenerator(publisher -> {
-                    AirplaneState state = AirplaneState.findFirst();
+                    EntityManager em = HibernateSessionProvider.getInstance().getEntityManager();
+                    em.getTransaction().begin();
+                    AirplaneState state = em.find(AirplaneState.class, 1);
+                    int newAltitude = (int) (state.getAltitude() + Math.floor(Math.random() * -200) +
+                                             Math.floor(state.getWingAngle() / 45.0 * 600));
+
+                    if (newAltitude <= 0) {
+                        newAltitude = 0;
+                    }
+
+                    state.setAltitude(newAltitude);
+                    em.getTransaction().commit();
 
                     System.out.println(
-                            "Sending altitude: " +
-                            state.getAltitude() +
+                            "[.] Sending altitude: " +
+                            newAltitude +
                             " to " +
                             publisher.getTargetRoutingKey()
                     );
@@ -36,7 +48,7 @@ public class AltitudeSensor {
                     try {
                         publisher.publish(new SensoryToControlPacket(
                                 Constants.ALTITUDE_SENSOR_ROUTING_KEY,
-                                state.getAltitude()
+                                newAltitude
                         ).getBytes());
                     } catch (IOException e) {
                         throw new RuntimeException(e);
