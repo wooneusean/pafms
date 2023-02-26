@@ -7,4 +7,6 @@ public class Constants {
     public static final String WING_FLAPS_ROUTING_KEY = "wing-flaps";
     public static final String CONTROL_TO_ACTUATOR_EXCHANGE = "control-to-actuator";
     public static final String LANDING_GEAR_ROUTING_KEY = "landing-gear";
+    public static final String SPEED_SENSOR_ROUTING_KEY = "speed";
+    public static final String ENGINE_THROTTLE_ROUTING_KEY = "engine-throttle";
 }

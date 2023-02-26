@@ -7,8 +7,6 @@ import my.edu.apu.rabbitmq.HibernateSessionProvider;
 import my.edu.apu.shared.AirplaneState;
 import my.edu.apu.shared.Constants;
 import my.edu.apu.shared.SensoryToControlPacket;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.concurrent.Executors;
@@ -16,10 +14,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-
-public class AltitudeSensor {
+public class SpeedSensor {
     public static void main(String[] args) throws IOException, TimeoutException {
-        ExchangePublisher altitudePublisher = new ExchangePublisher.Builder()
+        ExchangePublisher speedPublisher = new ExchangePublisher.Builder()
                 .withExchangeName(Constants.SENSORY_TO_CONTROL_EXCHANGE_NAME)
                 .withExchangeType(BuiltinExchangeType.DIRECT)
                 .withTargetRoutingKey(Constants.FLIGHT_CONTROL_ROUTING_KEY)
@@ -27,27 +24,27 @@ public class AltitudeSensor {
                     EntityManager em = HibernateSessionProvider.getInstance().getEntityManager();
                     em.getTransaction().begin();
                     AirplaneState state = em.find(AirplaneState.class, 1);
-                    int newAltitude = (int) (state.getAltitude() + Math.floor(Math.random() * -200) +
-                                             Math.floor(state.getWingAngle() / 45.0 * 600));
+                    int newSpeed = (int) (state.getSpeed() + Math.floor(Math.random() * -100) +
+                                          Math.floor(state.getEngineThrottle() / 100.0 * 100));
 
-                    if (newAltitude <= 0) {
-                        newAltitude = 0;
+                    if (newSpeed <= 0) {
+                        newSpeed = 0;
                     }
 
-                    state.setAltitude(newAltitude);
+                    state.setSpeed(newSpeed);
                     em.getTransaction().commit();
 
                     System.out.println(
-                            "[.] Sending altitude: " +
-                            newAltitude +
+                            "[.] Sending speed: " +
+                            newSpeed +
                             " to " +
                             publisher.getTargetRoutingKey()
                     );
 
                     try {
                         publisher.publish(new SensoryToControlPacket(
-                                Constants.ALTITUDE_SENSOR_ROUTING_KEY,
-                                newAltitude
+                                Constants.SPEED_SENSOR_ROUTING_KEY,
+                                newSpeed
                         ).getBytes());
                     } catch (IOException e) {
                         throw new RuntimeException(e);
@@ -56,6 +53,6 @@ public class AltitudeSensor {
                 .build();
 
         ScheduledExecutorService exec = Executors.newSingleThreadScheduledExecutor();
-        exec.scheduleAtFixedRate(altitudePublisher, 0, 1, TimeUnit.SECONDS);
+        exec.scheduleAtFixedRate(speedPublisher, 0, 1, TimeUnit.SECONDS);
     }
 }
