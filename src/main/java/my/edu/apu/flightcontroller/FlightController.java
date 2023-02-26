@@ -28,6 +28,7 @@ public class FlightController {
                         switch (packet.getRoutingKey()) {
                             case Constants.ALTITUDE_SENSOR_ROUTING_KEY -> altitudeSensorHandler(packet.getValue());
                             case Constants.SPEED_SENSOR_ROUTING_KEY -> speedSensorHandler(packet.getValue());
+                            case Constants.DIRECTION_SENSOR_ROUTING_KEY -> directionSensorHandler(packet.getValue());
                             default -> System.out.printf(
                                     "[x] Unknown routing key provided: %s%n",
                                     packet.getRoutingKey()
@@ -47,6 +48,30 @@ public class FlightController {
         targetAltitude = 0;
         targetSpeed = 0;
         System.out.println("[i] Landing sequence triggered.");
+    }
+
+    private static void directionSensorHandler(int value) throws IOException, TimeoutException {
+        ExchangePublisher tailFlapPublisher = new ExchangePublisher.Builder()
+                .withExchangeName(Constants.CONTROL_TO_ACTUATOR_EXCHANGE)
+                .withExchangeType(BuiltinExchangeType.DIRECT)
+                .withTargetRoutingKey(Constants.TAIL_FLAPS_ROUTING_KEY)
+                .withMessageGenerator(p -> {
+                    int newTailAngle = 0;
+                    if (value > 0) {
+                        newTailAngle = -45;
+                    } else if (value < 0) {
+                        newTailAngle = 45;
+                    }
+
+                    try {
+                        p.publish(String.valueOf(newTailAngle).getBytes());
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .build();
+
+        new Thread(tailFlapPublisher).start();
     }
 
     private static void speedSensorHandler(int value) throws IOException, TimeoutException {
@@ -83,6 +108,7 @@ public class FlightController {
                     }
                 })
                 .build();
+
         new Thread(engineThrottlePublisher).start();
     }
 

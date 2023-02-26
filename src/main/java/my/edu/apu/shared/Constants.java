@@ -9,4 +9,6 @@ public class Constants {
     public static final String LANDING_GEAR_ROUTING_KEY = "landing-gear";
     public static final String SPEED_SENSOR_ROUTING_KEY = "speed";
     public static final String ENGINE_THROTTLE_ROUTING_KEY = "engine-throttle";
+    public static final String DIRECTION_SENSOR_ROUTING_KEY = "direction";
+    public static final String TAIL_FLAPS_ROUTING_KEY = "tail-flaps";
 }
