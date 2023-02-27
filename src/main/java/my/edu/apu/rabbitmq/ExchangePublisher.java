@@ -109,17 +109,17 @@ public class ExchangePublisher implements Runnable {
 
         public ExchangePublisher build() throws IOException, TimeoutException {
             ExchangePublisher publisher = new ExchangePublisher();
-            publisher.exchangeName = exchangeName;
-            publisher.exchangeType = exchangeType;
-            publisher.targetRoutingKey = targetRoutingKey;
-            publisher.mandatory = mandatory;
-            publisher.messageGenerator = messageGenerator;
+            publisher.setExchangeName(exchangeName);
+            publisher.setExchangeType(exchangeType);
+            publisher.setTargetRoutingKey(targetRoutingKey);
+            publisher.setMandatory(mandatory);
+            publisher.setMessageGenerator(messageGenerator);
 
             Connection con = RabbitMQConnectionProvider.getInstance().getConnection();
-            publisher.channel = con.createChannel();
-            publisher.channel.exchangeDeclare(exchangeName, exchangeType);
+            publisher.setChannel(con.createChannel());
+            publisher.getChannel().exchangeDeclare(exchangeName, exchangeType);
 
-            publisher.basicProperties = basicPropertiesProvider.apply(publisher);
+            publisher.setBasicProperties(basicPropertiesProvider.apply(publisher));
             return publisher;
         }
     }

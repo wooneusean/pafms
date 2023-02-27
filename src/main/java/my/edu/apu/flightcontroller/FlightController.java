@@ -83,6 +83,10 @@ public class FlightController {
                 .withTargetRoutingKey(Constants.ENGINE_THROTTLE_ROUTING_KEY)
                 .withMessageGenerator(p -> {
                     int newEngineThrottle = 50;
+
+                    // TODO: Apply phaser, states (with abstract class to swap out functionality)
+                    //  or even consumables
+
                     // landing sequence
                     if (targetSpeed == 0) {
                         if (previousAltitude <= 0) {
