@@ -11,4 +11,6 @@ public class Constants {
     public static final String ENGINE_THROTTLE_ROUTING_KEY = "engine-throttle";
     public static final String DIRECTION_SENSOR_ROUTING_KEY = "direction";
     public static final String TAIL_FLAPS_ROUTING_KEY = "tail-flaps";
+    public static final String CABIN_PRESSURE_SENSOR_ROUTING_KEY = "cabin-pressure";
+    public static final String OXYGEN_MASKS_ROUTING_KEY = "oxygen-masks";
 }

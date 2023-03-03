@@ -14,33 +14,40 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class DirectionSensor {
+public class CabinPressureSensor {
+    static int currentIterations = 0;
+
     public static void main(String[] args) throws IOException, TimeoutException {
         ExchangePublisher directionPublisher = new ExchangePublisher.Builder()
                 .withExchangeName(Constants.SENSORY_TO_CONTROL_EXCHANGE_NAME)
                 .withExchangeType(BuiltinExchangeType.DIRECT)
                 .withTargetRoutingKey(Constants.FLIGHT_CONTROL_ROUTING_KEY)
                 .withMessageGenerator(publisher -> {
+                    currentIterations++;
+
                     EntityManager em = HibernateSessionProvider.getInstance().getEntityManager();
                     em.getTransaction().begin();
                     AirplaneState state = em.find(AirplaneState.class, 1);
-                    int newDirection = (int) (state.getDirection() + Math.floor((Math.random() * 100) - 50) +
-                                          Math.floor(state.getTailAngle() / 45.0 * 100));
-
-                    state.setDirection(newDirection);
+                    int newCabinPressure = state.getCabinPressure();
+                    if (currentIterations > 20) {
+                        newCabinPressure -= Math.floor((Math.random() * 1000) - 500);
+                    } else {
+                        newCabinPressure += Math.floor((Math.random() * 100) - 50);
+                    }
+                    state.setCabinPressure(newCabinPressure);
                     em.getTransaction().commit();
 
                     System.out.println(
-                            "[.] Sending direction: " +
-                            newDirection +
+                            "[.] Sending cabin pressure: " +
+                            newCabinPressure +
                             " to " +
                             publisher.getTargetRoutingKey()
                     );
 
                     try {
                         publisher.publish(new SensoryToControlPacket(
-                                Constants.DIRECTION_SENSOR_ROUTING_KEY,
-                                newDirection,
+                                Constants.CABIN_PRESSURE_SENSOR_ROUTING_KEY,
+                                newCabinPressure,
                                 System.currentTimeMillis()
                         ).getBytes());
                     } catch (IOException e) {

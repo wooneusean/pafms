@@ -4,8 +4,10 @@ import com.rabbitmq.client.BuiltinExchangeType;
 import jakarta.persistence.EntityManager;
 import my.edu.apu.rabbitmq.ExchangeConsumer;
 import my.edu.apu.rabbitmq.HibernateSessionProvider;
+import my.edu.apu.rabbitmq.Publishable;
 import my.edu.apu.shared.AirplaneState;
 import my.edu.apu.shared.Constants;
+import my.edu.apu.shared.ControlToActuatorPacket;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

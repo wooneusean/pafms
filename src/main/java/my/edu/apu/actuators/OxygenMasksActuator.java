@@ -10,28 +10,30 @@ import my.edu.apu.shared.Constants;
 import my.edu.apu.shared.ControlToActuatorPacket;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeoutException;
 
-public class LandingGearActuator {
+public class OxygenMasksActuator {
     public static void main(String[] args) throws IOException, TimeoutException {
-        ExchangeConsumer landingGearConsumer = new ExchangeConsumer.Builder()
+        ExchangeConsumer oxygenMaskConsumer = new ExchangeConsumer.Builder()
                 .withExchangeName(Constants.CONTROL_TO_ACTUATOR_EXCHANGE)
                 .withExchangeType(BuiltinExchangeType.DIRECT)
-                .withRoutingKey(Constants.LANDING_GEAR_ROUTING_KEY)
+                .withRoutingKey(Constants.OXYGEN_MASKS_ROUTING_KEY)
                 .withDeliveryCallback(c -> (s, delivery) -> {
                     ControlToActuatorPacket packet = Publishable.fromBytes(delivery.getBody());
-                    String landingGearState = value == 1 ? "DOWN" : "UP";
-                    System.out.println("[i] Landing gear is set to " + landingGearState);
+
+                    System.out.printf(
+                            "[.] Setting oxygen masks to: %s %n",
+                            packet.getValue() == 0 ? "hidden" : "deployed"
+                    );
 
                     EntityManager em = HibernateSessionProvider.getInstance().getEntityManager();
                     em.getTransaction().begin();
                     AirplaneState state = em.find(AirplaneState.class, 1);
-                    state.setLandingGearDeployed(value != 0);
+                    state.setOxygenMasksDeployed(packet.getValue() == 1);
                     em.getTransaction().commit();
                 })
                 .build();
 
-        new Thread(landingGearConsumer).start();
+        new Thread(oxygenMaskConsumer).start();
     }
 }

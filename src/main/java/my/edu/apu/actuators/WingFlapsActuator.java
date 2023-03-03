@@ -4,8 +4,10 @@ import com.rabbitmq.client.BuiltinExchangeType;
 import jakarta.persistence.EntityManager;
 import my.edu.apu.rabbitmq.ExchangeConsumer;
 import my.edu.apu.rabbitmq.HibernateSessionProvider;
+import my.edu.apu.rabbitmq.Publishable;
 import my.edu.apu.shared.AirplaneState;
 import my.edu.apu.shared.Constants;
+import my.edu.apu.shared.ControlToActuatorPacket;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -19,7 +21,7 @@ public class WingFlapsActuator {
                 .withExchangeType(BuiltinExchangeType.DIRECT)
                 .withRoutingKey(Constants.WING_FLAPS_ROUTING_KEY)
                 .withDeliveryCallback(c -> (s, delivery) -> {
-                    int value = Integer.parseInt(new String(delivery.getBody(), StandardCharsets.UTF_8));
+                    ControlToActuatorPacket packet = Publishable.fromBytes(delivery.getBody());
                     System.out.printf(
                             "[.] Setting wing flap angle to '%s'%n",
                             value

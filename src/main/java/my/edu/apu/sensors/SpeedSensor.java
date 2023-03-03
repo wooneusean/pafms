@@ -44,7 +44,8 @@ public class SpeedSensor {
                     try {
                         publisher.publish(new SensoryToControlPacket(
                                 Constants.SPEED_SENSOR_ROUTING_KEY,
-                                newSpeed
+                                newSpeed,
+                                System.currentTimeMillis()
                         ).getBytes());
                     } catch (IOException e) {
                         throw new RuntimeException(e);

@@ -47,7 +47,8 @@ public class AltitudeSensor {
                     try {
                         publisher.publish(new SensoryToControlPacket(
                                 Constants.ALTITUDE_SENSOR_ROUTING_KEY,
-                                newAltitude
+                                newAltitude,
+                                System.currentTimeMillis()
                         ).getBytes());
                     } catch (IOException e) {
                         throw new RuntimeException(e);

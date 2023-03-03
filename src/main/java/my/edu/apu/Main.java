@@ -22,7 +22,7 @@ public class Main {
         // in degrees, ideal is 0
         state.setDirection(0);
 
-        // Ideal pressure, too much cabin pressure is around 12000 i guess?
+        // Ideal pressure, too much cabin pressure is around 12000 I guess?
         state.setCabinPressure(6000);
 
         ////////////////////////////////

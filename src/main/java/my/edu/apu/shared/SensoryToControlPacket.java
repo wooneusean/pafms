@@ -1,36 +1,24 @@
 package my.edu.apu.shared;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import my.edu.apu.rabbitmq.Publishable;
 
+@Getter
+@Setter
+@AllArgsConstructor
 public class SensoryToControlPacket implements Publishable {
-    String routingKey;
-    int value;
-    public SensoryToControlPacket(String routingKey, int value) {
-        this.routingKey = routingKey;
-        this.value = value;
-    }
+    protected String routingKey;
+    protected int value;
+    protected long timestamp;
 
     @Override
     public String toString() {
         return "{\"SensoryToControlPacket\":{" +
                "\"routingKey\":\"" + routingKey + '\"' +
                ", \"value\":" + value +
+               ", \"timestamp\":" + timestamp +
                "}}";
-    }
-
-    public String getRoutingKey() {
-        return routingKey;
-    }
-
-    public void setRoutingKey(String routingKey) {
-        this.routingKey = routingKey;
-    }
-
-    public int getValue() {
-        return value;
-    }
-
-    public void setValue(int value) {
-        this.value = value;
     }
 }
