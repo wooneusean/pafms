@@ -3,6 +3,8 @@ package my.edu.apu;
 import jakarta.persistence.EntityManager;
 import my.edu.apu.rabbitmq.HibernateSessionProvider;
 import my.edu.apu.shared.AirplaneState;
+import my.edu.apu.shared.Constants;
+import my.edu.apu.shared.ResponseTimeData;
 
 public class Main {
     public static void main(String[] args) {
@@ -42,9 +44,18 @@ public class Main {
         state.setLandingGearDeployed(false);
         state.setOxygenMasksDeployed(false);
 
+//        ResponseTimeData rtd = ResponseTimeData
+//                .builder()
+//                .actuator("test-actuator")
+//                .sensor("test-sensor")
+//                .sensorToControlResponseTime(120L)
+//                .controlToActuatorResponseTime(50L)
+//                .build();
+
         EntityManager em = HibernateSessionProvider.getInstance().getEntityManager();
         em.getTransaction().begin();
         em.persist(state);
+//        em.persist(rtd);
         em.getTransaction().commit();
         em.close();
     }

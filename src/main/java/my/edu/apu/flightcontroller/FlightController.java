@@ -62,13 +62,19 @@ public class FlightController {
 
                     if (packet.getValue() >= 8000) {
                         shouldDropOxygenMask = 1;
+                        targetAltitude = 0;
+                        targetSpeed = 0;
+                        System.out.println(
+                                "[i] Cabin pressure is getting dangerously high, dropping oxygen masks and triggering landing sequence.");
                     }
 
                     try {
+                        long currentTimestamp = System.currentTimeMillis();
                         p.publish(new ControlToActuatorPacket(
+                                packet.getRoutingKey(),
                                 shouldDropOxygenMask,
-                                packet.getTimestamp(),
-                                System.currentTimeMillis()
+                                currentTimestamp - packet.getTimestampFromSensor(),
+                                currentTimestamp
                         ).getBytes());
                     } catch (IOException e) {
                         throw new RuntimeException(e);
@@ -93,10 +99,12 @@ public class FlightController {
                     }
 
                     try {
+                        long currentTimestamp = System.currentTimeMillis();
                         p.publish(new ControlToActuatorPacket(
+                                packet.getRoutingKey(),
                                 newTailAngle,
-                                packet.getTimestamp(),
-                                System.currentTimeMillis()
+                                currentTimestamp - packet.getTimestampFromSensor(),
+                                currentTimestamp
                         ).getBytes());
                     } catch (IOException e) {
                         throw new RuntimeException(e);
@@ -136,10 +144,12 @@ public class FlightController {
                     }
 
                     try {
+                        long currentTimestamp = System.currentTimeMillis();
                         p.publish(new ControlToActuatorPacket(
+                                packet.getRoutingKey(),
                                 newEngineThrottle,
-                                packet.getTimestamp(),
-                                System.currentTimeMillis()
+                                currentTimestamp - packet.getTimestampFromSensor(),
+                                currentTimestamp
                         ).getBytes());
                     } catch (IOException e) {
                         throw new RuntimeException(e);
@@ -158,18 +168,21 @@ public class FlightController {
                 .withExchangeType(BuiltinExchangeType.DIRECT)
                 .withTargetRoutingKey(Constants.WING_FLAPS_ROUTING_KEY)
                 .withMessageGenerator(p -> {
+                    long currentTimestamp = System.currentTimeMillis();
                     try {
                         if (packet.getValue() <= 400 && targetAltitude == 0) {
                             p.publish(new ControlToActuatorPacket(
+                                    packet.getRoutingKey(),
                                     1,
-                                    packet.getTimestamp(),
-                                    System.currentTimeMillis()
+                                    currentTimestamp - packet.getTimestampFromSensor(),
+                                    currentTimestamp
                             ).getBytes(), Constants.LANDING_GEAR_ROUTING_KEY);
                         } else {
                             p.publish(new ControlToActuatorPacket(
+                                    packet.getRoutingKey(),
                                     0,
-                                    packet.getTimestamp(),
-                                    System.currentTimeMillis()
+                                    currentTimestamp - packet.getTimestampFromSensor(),
+                                    currentTimestamp
                             ).getBytes(), Constants.LANDING_GEAR_ROUTING_KEY);
                         }
                     } catch (IOException e) {
@@ -185,9 +198,10 @@ public class FlightController {
 
                     try {
                         p.publish(new ControlToActuatorPacket(
+                                packet.getRoutingKey(),
                                 newWingAngle,
-                                packet.getTimestamp(),
-                                System.currentTimeMillis()
+                                currentTimestamp - packet.getTimestampFromSensor(),
+                                currentTimestamp
                         ).getBytes());
                     } catch (IOException e) {
                         throw new RuntimeException(e);

@@ -2,6 +2,13 @@ package my.edu.apu.rabbitmq;
 
 import java.io.*;
 
+/**
+ * Classes that extend <code>Publishable</code> will have helper functions to get the byte representation of the
+ * serialized object.
+ * <p>
+ * The static class also provides a helper function to convert bytes to an object that derives <code>Publishable</code>.
+ * See {@link Publishable#fromBytes(byte[])}
+ */
 public interface Publishable extends Serializable {
 
     @SuppressWarnings("unchecked")

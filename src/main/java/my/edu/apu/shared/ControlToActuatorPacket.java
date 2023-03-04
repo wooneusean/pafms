@@ -5,19 +5,23 @@ import lombok.Getter;
 import lombok.Setter;
 import my.edu.apu.rabbitmq.Publishable;
 
+/**
+ * Represents the structure of object that gets sent from the flight controller to any one of the actuators.
+ */
 @Getter
 @Setter
 @AllArgsConstructor
 public class ControlToActuatorPacket implements Publishable {
+    protected String sensor;
     protected int value;
-    protected long timestampFromSensor;
+    protected long sensorToControlResponseTime;
     protected long timestampFromControl;
 
     @Override
     public String toString() {
         return "{\"ControlToActuatorPacket\":{" +
                "\"value\":" + value +
-               ", \"timestampFromSensor\":" + timestampFromSensor +
+               ", \"sensorToControlResponseTime\":" + sensorToControlResponseTime +
                ", \"timestampFromControl\":" + timestampFromControl +
                "}}";
     }

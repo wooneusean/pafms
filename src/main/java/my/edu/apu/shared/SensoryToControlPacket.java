@@ -11,14 +11,14 @@ import my.edu.apu.rabbitmq.Publishable;
 public class SensoryToControlPacket implements Publishable {
     protected String routingKey;
     protected int value;
-    protected long timestamp;
+    protected long timestampFromSensor;
 
     @Override
     public String toString() {
         return "{\"SensoryToControlPacket\":{" +
                "\"routingKey\":\"" + routingKey + '\"' +
                ", \"value\":" + value +
-               ", \"timestamp\":" + timestamp +
+               ", \"timestampFromSensor\":" + timestampFromSensor +
                "}}";
     }
 }

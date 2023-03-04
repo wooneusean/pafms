@@ -8,9 +8,9 @@ import my.edu.apu.rabbitmq.Publishable;
 import my.edu.apu.shared.AirplaneState;
 import my.edu.apu.shared.Constants;
 import my.edu.apu.shared.ControlToActuatorPacket;
+import my.edu.apu.shared.ResponseTimeData;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeoutException;
 
 public class WingFlapsActuator {
@@ -22,14 +22,29 @@ public class WingFlapsActuator {
                 .withRoutingKey(Constants.WING_FLAPS_ROUTING_KEY)
                 .withDeliveryCallback(c -> (s, delivery) -> {
                     ControlToActuatorPacket packet = Publishable.fromBytes(delivery.getBody());
+
                     System.out.printf(
                             "[.] Setting wing flap angle to '%s'%n",
-                            value
+                            packet.getValue()
                     );
+
+                    ResponseTimeData rtd = ResponseTimeData
+                            .builder()
+                            .actuator(Constants.WING_FLAPS_ROUTING_KEY)
+                            .sensor(packet.getSensor())
+                            .sensorToControlResponseTime(packet.getSensorToControlResponseTime())
+                            .controlToActuatorResponseTime(
+                                    System.currentTimeMillis() - packet.getTimestampFromControl()
+                            )
+                            .build();
+
                     EntityManager em = HibernateSessionProvider.getInstance().getEntityManager();
                     em.getTransaction().begin();
+
                     AirplaneState state = em.find(AirplaneState.class, 1);
-                    state.setWingAngle(value);
+                    state.setWingAngle(packet.getValue());
+                    em.persist(rtd);
+
                     em.getTransaction().commit();
                 })
                 .build();
