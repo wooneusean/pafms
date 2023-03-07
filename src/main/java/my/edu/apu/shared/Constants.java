@@ -1,7 +1,7 @@
 package my.edu.apu.shared;
 
 public class Constants {
-    public static final String SENSORY_TO_CONTROL_EXCHANGE_NAME = "sensory-to-control";
+    public static final String SENSORY_TO_CONTROL_EXCHANGE = "sensory-to-control";
     public static final String FLIGHT_CONTROL_ROUTING_KEY = "flight-control";
     public static final String ALTITUDE_SENSOR_ROUTING_KEY = "altitude";
     public static final String WING_FLAPS_ROUTING_KEY = "wing-flaps";
@@ -13,4 +13,5 @@ public class Constants {
     public static final String TAIL_FLAPS_ROUTING_KEY = "tail-flaps";
     public static final String CABIN_PRESSURE_SENSOR_ROUTING_KEY = "cabin-pressure";
     public static final String OXYGEN_MASKS_ROUTING_KEY = "oxygen-masks";
+    public static final String ACTUATOR_TO_CONTROL_EXCHANGE = "actuator-to-control";
 }

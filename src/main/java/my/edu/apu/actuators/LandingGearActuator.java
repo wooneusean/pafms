@@ -29,7 +29,7 @@ public class LandingGearActuator {
                             .builder()
                             .actuator(Constants.LANDING_GEAR_ROUTING_KEY)
                             .sensor(packet.getSensor())
-                            .sensorToControlResponseTime(packet.getSensorToControlResponseTime())
+                            .sensorToControlResponseTime(packet.getTimestampFromSensor())
                             .controlToActuatorResponseTime(
                                     System.currentTimeMillis() - packet.getTimestampFromControl()
                             )

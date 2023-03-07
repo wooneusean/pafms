@@ -31,7 +31,7 @@ public class TailFlapsActuator {
                             .builder()
                             .actuator(Constants.TAIL_FLAPS_ROUTING_KEY)
                             .sensor(packet.getSensor())
-                            .sensorToControlResponseTime(packet.getSensorToControlResponseTime())
+                            .sensorToControlResponseTime(packet.getTimestampFromSensor())
                             .controlToActuatorResponseTime(
                                     System.currentTimeMillis() - packet.getTimestampFromControl()
                             )

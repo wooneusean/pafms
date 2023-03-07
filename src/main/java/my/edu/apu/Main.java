@@ -3,8 +3,6 @@ package my.edu.apu;
 import jakarta.persistence.EntityManager;
 import my.edu.apu.rabbitmq.HibernateSessionProvider;
 import my.edu.apu.shared.AirplaneState;
-import my.edu.apu.shared.Constants;
-import my.edu.apu.shared.ResponseTimeData;
 
 public class Main {
     public static void main(String[] args) {

@@ -1,10 +1,10 @@
 package my.edu.apu.sensors;
 
 import com.rabbitmq.client.BuiltinExchangeType;
-import jakarta.persistence.EntityManager;
+import my.edu.apu.rabbitmq.ExchangeConsumer;
 import my.edu.apu.rabbitmq.ExchangePublisher;
-import my.edu.apu.rabbitmq.HibernateSessionProvider;
-import my.edu.apu.shared.AirplaneState;
+import my.edu.apu.rabbitmq.Publishable;
+import my.edu.apu.shared.ActuatorToSensorPacket;
 import my.edu.apu.shared.Constants;
 import my.edu.apu.shared.SensoryToControlPacket;
 
@@ -16,30 +16,26 @@ import java.util.concurrent.TimeoutException;
 
 public class CabinPressureSensor {
     static int currentIterations = 0;
+    static int currentCabinPressure = 6000;
 
     public static void main(String[] args) throws IOException, TimeoutException {
         ExchangePublisher directionPublisher = new ExchangePublisher.Builder()
-                .withExchangeName(Constants.SENSORY_TO_CONTROL_EXCHANGE_NAME)
+                .withExchangeName(Constants.SENSORY_TO_CONTROL_EXCHANGE)
                 .withExchangeType(BuiltinExchangeType.DIRECT)
                 .withTargetRoutingKey(Constants.FLIGHT_CONTROL_ROUTING_KEY)
                 .withMessageGenerator(publisher -> {
                     currentIterations++;
 
-                    EntityManager em = HibernateSessionProvider.getInstance().getEntityManager();
-                    em.getTransaction().begin();
-                    AirplaneState state = em.find(AirplaneState.class, 1);
-                    int newCabinPressure = state.getCabinPressure();
-                    if (currentIterations > 20) {
-                        newCabinPressure -= Math.floor((Math.random() * 1000) - 500);
-                    } else {
-                        newCabinPressure += Math.floor((Math.random() * 100) - 50);
-                    }
-                    state.setCabinPressure(newCabinPressure);
-                    em.getTransaction().commit();
+                    currentCabinPressure += Math.floor((Math.random() * 100) - 50);
+//                    if (currentIterations > 20) {
+//                        currentCabinPressure -= Math.floor((Math.random() * 1000) - 500);
+//                    } else {
+//                        currentCabinPressure += Math.floor((Math.random() * 100) - 50);
+//                    }
 
                     System.out.println(
                             "[.] Sending cabin pressure: " +
-                            newCabinPressure +
+                            currentCabinPressure +
                             " to " +
                             publisher.getTargetRoutingKey()
                     );
@@ -47,7 +43,7 @@ public class CabinPressureSensor {
                     try {
                         publisher.publish(new SensoryToControlPacket(
                                 Constants.CABIN_PRESSURE_SENSOR_ROUTING_KEY,
-                                newCabinPressure,
+                                currentCabinPressure,
                                 System.currentTimeMillis()
                         ).getBytes());
                     } catch (IOException e) {

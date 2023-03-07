@@ -17,7 +17,7 @@ import java.util.concurrent.TimeoutException;
 public class SpeedSensor {
     public static void main(String[] args) throws IOException, TimeoutException {
         ExchangePublisher speedPublisher = new ExchangePublisher.Builder()
-                .withExchangeName(Constants.SENSORY_TO_CONTROL_EXCHANGE_NAME)
+                .withExchangeName(Constants.SENSORY_TO_CONTROL_EXCHANGE)
                 .withExchangeType(BuiltinExchangeType.DIRECT)
                 .withTargetRoutingKey(Constants.FLIGHT_CONTROL_ROUTING_KEY)
                 .withMessageGenerator(publisher -> {

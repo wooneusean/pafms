@@ -31,7 +31,7 @@ public class EngineThrottleActuator {
                             .builder()
                             .actuator(Constants.ENGINE_THROTTLE_ROUTING_KEY)
                             .sensor(packet.getSensor())
-                            .sensorToControlResponseTime(packet.getSensorToControlResponseTime())
+                            .sensorToControlResponseTime(packet.getTimestampFromSensor())
                             .controlToActuatorResponseTime(
                                     System.currentTimeMillis() - packet.getTimestampFromControl()
                             )

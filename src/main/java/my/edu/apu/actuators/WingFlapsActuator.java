@@ -32,7 +32,7 @@ public class WingFlapsActuator {
                             .builder()
                             .actuator(Constants.WING_FLAPS_ROUTING_KEY)
                             .sensor(packet.getSensor())
-                            .sensorToControlResponseTime(packet.getSensorToControlResponseTime())
+                            .sensorToControlResponseTime(packet.getTimestampFromSensor())
                             .controlToActuatorResponseTime(
                                     System.currentTimeMillis() - packet.getTimestampFromControl()
                             )

@@ -31,7 +31,7 @@ public class OxygenMasksActuator {
                             .builder()
                             .actuator(Constants.OXYGEN_MASKS_ROUTING_KEY)
                             .sensor(packet.getSensor())
-                            .sensorToControlResponseTime(packet.getSensorToControlResponseTime())
+                            .sensorToControlResponseTime(packet.getTimestampFromSensor())
                             .controlToActuatorResponseTime(
                                     System.currentTimeMillis() - packet.getTimestampFromControl()
                             )
