@@ -25,6 +25,7 @@ public class AltitudeSensor {
                 .withExchangeType(BuiltinExchangeType.DIRECT)
                 .withTargetRoutingKey(Constants.FLIGHT_CONTROL_ROUTING_KEY)
                 .withMessageGenerator(publisher -> {
+                    long currentTimestamp = System.currentTimeMillis();
                     currentAltitude = (int) (currentAltitude + Math.floor(Math.random() * -200) +
                                              Math.floor(currentWingAngle / 45.0 * 600));
 
@@ -43,7 +44,7 @@ public class AltitudeSensor {
                         publisher.publish(new SensoryToControlPacket(
                                 Constants.ALTITUDE_SENSOR_ROUTING_KEY,
                                 currentAltitude,
-                                System.currentTimeMillis()
+                                currentTimestamp
                         ).getBytes());
                     } catch (IOException e) {
                         throw new RuntimeException(e);
@@ -52,14 +53,12 @@ public class AltitudeSensor {
                 .build();
 
         ExchangeConsumer altitudeConsumer = new ExchangeConsumer.Builder()
-                .withExchangeName(Constants.ACTUATOR_TO_CONTROL_EXCHANGE)
+                .withExchangeName(Constants.ACTUATOR_TO_SENSOR_EXCHANGE)
                 .withExchangeType(BuiltinExchangeType.DIRECT)
                 .withRoutingKey(Constants.ALTITUDE_SENSOR_ROUTING_KEY)
                 .withDeliveryCallback(c -> (s, delivery) -> {
                     ActuatorToSensorPacket packet = Publishable.fromBytes(delivery.getBody());
                     currentWingAngle = packet.getValue();
-
-                    // TODO: Figure out where to do the timestamp calculations
                 })
                 .build();
 

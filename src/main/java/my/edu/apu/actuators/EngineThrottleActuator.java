@@ -1,16 +1,16 @@
 package my.edu.apu.actuators;
 
 import com.rabbitmq.client.BuiltinExchangeType;
-import jakarta.persistence.EntityManager;
 import my.edu.apu.rabbitmq.ExchangeConsumer;
-import my.edu.apu.rabbitmq.HibernateSessionProvider;
 import my.edu.apu.rabbitmq.Publishable;
-import my.edu.apu.shared.AirplaneState;
+import my.edu.apu.shared.ActuatorToSensorPacket;
 import my.edu.apu.shared.Constants;
 import my.edu.apu.shared.ControlToActuatorPacket;
-import my.edu.apu.shared.ResponseTimeData;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.concurrent.TimeoutException;
 
 public class EngineThrottleActuator {
@@ -27,24 +27,39 @@ public class EngineThrottleActuator {
                             packet.getValue()
                     );
 
-                    ResponseTimeData rtd = ResponseTimeData
-                            .builder()
-                            .actuator(Constants.ENGINE_THROTTLE_ROUTING_KEY)
-                            .sensor(packet.getSensor())
-                            .sensorToControlResponseTime(packet.getTimestampFromSensor())
-                            .controlToActuatorResponseTime(
-                                    System.currentTimeMillis() - packet.getTimestampFromControl()
-                            )
-                            .build();
 
-                    EntityManager em = HibernateSessionProvider.getInstance().getEntityManager();
-                    em.getTransaction().begin();
+                    long sensorToControlResponseTime =
+                            packet.getTimestampFromControl() - packet.getTimestampFromSensor();
+                    long controlToActuatorResponseTime =
+                            System.currentTimeMillis() - packet.getTimestampFromControl();
 
-                    AirplaneState state = em.find(AirplaneState.class, 1);
-                    state.setEngineThrottle(packet.getValue());
-                    em.persist(rtd);
+                    try (FileWriter fw = new FileWriter(Constants.ENGINE_THROTTLE_ROUTING_KEY + ".csv", true);
+                         BufferedWriter bw = new BufferedWriter(fw);
+                         PrintWriter out = new PrintWriter(bw)) {
+                        out.printf(
+                                "%s,%s,%d,%d,%d%n",
+                                packet.getSensor(),
+                                c.getRoutingKey(),
+                                sensorToControlResponseTime,
+                                controlToActuatorResponseTime,
+                                sensorToControlResponseTime + controlToActuatorResponseTime
+                        );
+                    } catch (IOException e) {
+                        //exception handling left as an exercise for the reader
+                    }
 
-                    em.getTransaction().commit();
+                    c.getChannel().basicPublish(
+                            Constants.ACTUATOR_TO_SENSOR_EXCHANGE,
+                            Constants.SPEED_SENSOR_ROUTING_KEY,
+                            null,
+                            new ActuatorToSensorPacket(
+                                    Constants.ENGINE_THROTTLE_ROUTING_KEY,
+                                    packet.getValue(),
+                                    packet.getTimestampFromSensor(),
+                                    packet.getTimestampFromControl(),
+                                    System.currentTimeMillis()
+                            ).getBytes()
+                    );
                 })
                 .build();
 

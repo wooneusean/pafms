@@ -1,16 +1,15 @@
 package my.edu.apu.actuators;
 
 import com.rabbitmq.client.BuiltinExchangeType;
-import jakarta.persistence.EntityManager;
 import my.edu.apu.rabbitmq.ExchangeConsumer;
-import my.edu.apu.rabbitmq.HibernateSessionProvider;
 import my.edu.apu.rabbitmq.Publishable;
-import my.edu.apu.shared.AirplaneState;
 import my.edu.apu.shared.Constants;
 import my.edu.apu.shared.ControlToActuatorPacket;
-import my.edu.apu.shared.ResponseTimeData;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.concurrent.TimeoutException;
 
 public class LandingGearActuator {
@@ -25,24 +24,26 @@ public class LandingGearActuator {
                     String landingGearState = packet.getValue() == 1 ? "DOWN" : "UP";
                     System.out.println("[i] Landing gear is set to " + landingGearState);
 
-                    ResponseTimeData rtd = ResponseTimeData
-                            .builder()
-                            .actuator(Constants.LANDING_GEAR_ROUTING_KEY)
-                            .sensor(packet.getSensor())
-                            .sensorToControlResponseTime(packet.getTimestampFromSensor())
-                            .controlToActuatorResponseTime(
-                                    System.currentTimeMillis() - packet.getTimestampFromControl()
-                            )
-                            .build();
+                    long sensorToControlResponseTime =
+                            packet.getTimestampFromControl() - packet.getTimestampFromSensor();
+                    long controlToActuatorResponseTime =
+                            System.currentTimeMillis() - packet.getTimestampFromControl();
 
-                    EntityManager em = HibernateSessionProvider.getInstance().getEntityManager();
-                    em.getTransaction().begin();
+                    try (FileWriter fw = new FileWriter(Constants.LANDING_GEAR_ROUTING_KEY + ".csv", true);
+                         BufferedWriter bw = new BufferedWriter(fw);
+                         PrintWriter out = new PrintWriter(bw)) {
+                        out.printf(
+                                "%s,%s,%d,%d,%d%n",
+                                packet.getSensor(),
+                                c.getRoutingKey(),
+                                sensorToControlResponseTime,
+                                controlToActuatorResponseTime,
+                                sensorToControlResponseTime + controlToActuatorResponseTime
+                        );
+                    } catch (IOException e) {
+                        //exception handling left as an exercise for the reader
+                    }
 
-                    AirplaneState state = em.find(AirplaneState.class, 1);
-                    state.setLandingGearDeployed(packet.getValue() != 0);
-                    em.persist(rtd);
-
-                    em.getTransaction().commit();
                 })
                 .build();
 

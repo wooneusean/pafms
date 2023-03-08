@@ -15,8 +15,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 public class DirectionSensor {
-    private static int currentDirection;
-    private static int currentTailAngle;
+    private static int currentDirection = 0;
+    private static int currentTailAngle = 0;
 
     public static void main(String[] args) throws IOException, TimeoutException {
         ExchangePublisher directionPublisher = new ExchangePublisher.Builder()
@@ -24,6 +24,7 @@ public class DirectionSensor {
                 .withExchangeType(BuiltinExchangeType.DIRECT)
                 .withTargetRoutingKey(Constants.FLIGHT_CONTROL_ROUTING_KEY)
                 .withMessageGenerator(publisher -> {
+                    long currentTimestamp = System.currentTimeMillis();
                     currentDirection = (int) (currentDirection + Math.floor((Math.random() * 100) - 50) +
                                               Math.floor(currentTailAngle / 45.0 * 100));
 
@@ -38,7 +39,7 @@ public class DirectionSensor {
                         publisher.publish(new SensoryToControlPacket(
                                 Constants.DIRECTION_SENSOR_ROUTING_KEY,
                                 currentDirection,
-                                System.currentTimeMillis()
+                                currentTimestamp
                         ).getBytes());
                     } catch (IOException e) {
                         throw new RuntimeException(e);
@@ -47,14 +48,12 @@ public class DirectionSensor {
                 .build();
 
         ExchangeConsumer directionConsumer = new ExchangeConsumer.Builder()
-                .withExchangeName(Constants.ACTUATOR_TO_CONTROL_EXCHANGE)
+                .withExchangeName(Constants.ACTUATOR_TO_SENSOR_EXCHANGE)
                 .withExchangeType(BuiltinExchangeType.DIRECT)
                 .withRoutingKey(Constants.DIRECTION_SENSOR_ROUTING_KEY)
                 .withDeliveryCallback(c -> (s, delivery) -> {
                     ActuatorToSensorPacket packet = Publishable.fromBytes(delivery.getBody());
                     currentTailAngle = packet.getValue();
-
-                    // TODO: Figure out where to do the timestamp calculations
                 })
                 .build();
 

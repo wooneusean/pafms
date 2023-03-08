@@ -1,10 +1,7 @@
 package my.edu.apu.sensors;
 
 import com.rabbitmq.client.BuiltinExchangeType;
-import my.edu.apu.rabbitmq.ExchangeConsumer;
 import my.edu.apu.rabbitmq.ExchangePublisher;
-import my.edu.apu.rabbitmq.Publishable;
-import my.edu.apu.shared.ActuatorToSensorPacket;
 import my.edu.apu.shared.Constants;
 import my.edu.apu.shared.SensoryToControlPacket;
 
@@ -24,14 +21,20 @@ public class CabinPressureSensor {
                 .withExchangeType(BuiltinExchangeType.DIRECT)
                 .withTargetRoutingKey(Constants.FLIGHT_CONTROL_ROUTING_KEY)
                 .withMessageGenerator(publisher -> {
+                    long currentTimestamp = System.currentTimeMillis();
                     currentIterations++;
 
                     currentCabinPressure += Math.floor((Math.random() * 100) - 50);
-//                    if (currentIterations > 20) {
-//                        currentCabinPressure -= Math.floor((Math.random() * 1000) - 500);
+
+//                    if (currentIterations > 60) {
+//                        currentCabinPressure -= Math.floor((Math.random() * 1000));
 //                    } else {
 //                        currentCabinPressure += Math.floor((Math.random() * 100) - 50);
 //                    }
+
+                    if (currentCabinPressure <= 0) {
+                        currentCabinPressure = 0;
+                    }
 
                     System.out.println(
                             "[.] Sending cabin pressure: " +
@@ -44,7 +47,7 @@ public class CabinPressureSensor {
                         publisher.publish(new SensoryToControlPacket(
                                 Constants.CABIN_PRESSURE_SENSOR_ROUTING_KEY,
                                 currentCabinPressure,
-                                System.currentTimeMillis()
+                                currentTimestamp
                         ).getBytes());
                     } catch (IOException e) {
                         throw new RuntimeException(e);

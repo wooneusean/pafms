@@ -24,13 +24,14 @@ public class FlightController {
                 .withExchangeType(BuiltinExchangeType.DIRECT)
                 .withRoutingKey(Constants.FLIGHT_CONTROL_ROUTING_KEY)
                 .withDeliveryCallback(c -> (s, delivery) -> {
+                    long deliveryTimestamp = System.currentTimeMillis();
                     SensoryToControlPacket packet = Publishable.fromBytes(delivery.getBody());
                     try {
                         switch (packet.getRoutingKey()) {
-                            case Constants.ALTITUDE_SENSOR_ROUTING_KEY -> altitudeSensorHandler(packet);
-                            case Constants.SPEED_SENSOR_ROUTING_KEY -> speedSensorHandler(packet);
-                            case Constants.DIRECTION_SENSOR_ROUTING_KEY -> directionSensorHandler(packet);
-                            case Constants.CABIN_PRESSURE_SENSOR_ROUTING_KEY -> cabinPressureSensorHandler(packet);
+                            case Constants.ALTITUDE_SENSOR_ROUTING_KEY -> altitudeSensorHandler(packet, deliveryTimestamp);
+                            case Constants.SPEED_SENSOR_ROUTING_KEY -> speedSensorHandler(packet, deliveryTimestamp);
+                            case Constants.DIRECTION_SENSOR_ROUTING_KEY -> directionSensorHandler(packet, deliveryTimestamp);
+                            case Constants.CABIN_PRESSURE_SENSOR_ROUTING_KEY -> cabinPressureSensorHandler(packet, deliveryTimestamp);
                             default -> System.out.printf(
                                     "[x] Unknown routing key provided: %s%n",
                                     packet.getRoutingKey()
@@ -52,7 +53,7 @@ public class FlightController {
         System.out.println("[i] Landing sequence triggered.");
     }
 
-    private static void cabinPressureSensorHandler(SensoryToControlPacket packet) throws IOException, TimeoutException {
+    private static void cabinPressureSensorHandler(SensoryToControlPacket packet, long deliveryTimestamp) throws IOException, TimeoutException {
         ExchangePublisher oxygenMaskPublisher = new ExchangePublisher.Builder()
                 .withExchangeName(Constants.CONTROL_TO_ACTUATOR_EXCHANGE)
                 .withExchangeType(BuiltinExchangeType.DIRECT)
@@ -73,7 +74,7 @@ public class FlightController {
                                 packet.getRoutingKey(),
                                 shouldDropOxygenMask,
                                 packet.getTimestampFromSensor(),
-                                System.currentTimeMillis()
+                                deliveryTimestamp
                         ).getBytes());
                     } catch (IOException e) {
                         throw new RuntimeException(e);
@@ -84,7 +85,7 @@ public class FlightController {
         new Thread(oxygenMaskPublisher).start();
     }
 
-    private static void directionSensorHandler(SensoryToControlPacket packet) throws IOException, TimeoutException {
+    private static void directionSensorHandler(SensoryToControlPacket packet, long deliveryTimestamp) throws IOException, TimeoutException {
         ExchangePublisher tailFlapPublisher = new ExchangePublisher.Builder()
                 .withExchangeName(Constants.CONTROL_TO_ACTUATOR_EXCHANGE)
                 .withExchangeType(BuiltinExchangeType.DIRECT)
@@ -102,7 +103,7 @@ public class FlightController {
                                 packet.getRoutingKey(),
                                 newTailAngle,
                                 packet.getTimestampFromSensor(),
-                                System.currentTimeMillis()
+                                deliveryTimestamp
                         ).getBytes());
                     } catch (IOException e) {
                         throw new RuntimeException(e);
@@ -113,7 +114,7 @@ public class FlightController {
         new Thread(tailFlapPublisher).start();
     }
 
-    private static void speedSensorHandler(SensoryToControlPacket packet) throws IOException, TimeoutException {
+    private static void speedSensorHandler(SensoryToControlPacket packet, long deliveryTimestamp) throws IOException, TimeoutException {
         previousSpeed = packet.getValue();
 
         ExchangePublisher engineThrottlePublisher = new ExchangePublisher.Builder()
@@ -146,7 +147,7 @@ public class FlightController {
                                 packet.getRoutingKey(),
                                 newEngineThrottle,
                                 packet.getTimestampFromSensor(),
-                                System.currentTimeMillis()
+                                deliveryTimestamp
                         ).getBytes());
                     } catch (IOException e) {
                         throw new RuntimeException(e);
@@ -157,7 +158,7 @@ public class FlightController {
         new Thread(engineThrottlePublisher).start();
     }
 
-    private static void altitudeSensorHandler(SensoryToControlPacket packet) throws IOException, TimeoutException {
+    private static void altitudeSensorHandler(SensoryToControlPacket packet, long deliveryTimestamp) throws IOException, TimeoutException {
         previousAltitude = packet.getValue();
 
         ExchangePublisher wingFlapPublisher = new ExchangePublisher.Builder()
@@ -171,14 +172,14 @@ public class FlightController {
                                     packet.getRoutingKey(),
                                     1,
                                     packet.getTimestampFromSensor(),
-                                    System.currentTimeMillis()
+                                    deliveryTimestamp
                             ).getBytes(), Constants.LANDING_GEAR_ROUTING_KEY);
                         } else {
                             p.publish(new ControlToActuatorPacket(
                                     packet.getRoutingKey(),
                                     0,
                                     packet.getTimestampFromSensor(),
-                                    System.currentTimeMillis()
+                                    deliveryTimestamp
                             ).getBytes(), Constants.LANDING_GEAR_ROUTING_KEY);
                         }
                     } catch (IOException e) {
@@ -197,7 +198,7 @@ public class FlightController {
                                 packet.getRoutingKey(),
                                 newWingAngle,
                                 packet.getTimestampFromSensor(),
-                                System.currentTimeMillis()
+                                deliveryTimestamp
                         ).getBytes());
                     } catch (IOException e) {
                         throw new RuntimeException(e);

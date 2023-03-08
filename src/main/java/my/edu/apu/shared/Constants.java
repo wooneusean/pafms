@@ -13,5 +13,5 @@ public class Constants {
     public static final String TAIL_FLAPS_ROUTING_KEY = "tail-flaps";
     public static final String CABIN_PRESSURE_SENSOR_ROUTING_KEY = "cabin-pressure";
     public static final String OXYGEN_MASKS_ROUTING_KEY = "oxygen-masks";
-    public static final String ACTUATOR_TO_CONTROL_EXCHANGE = "actuator-to-control";
+    public static final String ACTUATOR_TO_SENSOR_EXCHANGE = "actuator-to-sensor";
 }
