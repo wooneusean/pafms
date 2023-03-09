@@ -66,7 +66,8 @@ public class FlightController {
                         targetAltitude = 0;
                         targetSpeed = 0;
                         System.out.println(
-                                "[i] Cabin pressure is getting dangerously high, dropping oxygen masks and triggering landing sequence.");
+                                "[i] Cabin pressure is getting dangerously high, dropping oxygen masks and triggering landing sequence."
+                        );
                     }
 
                     try {
@@ -81,6 +82,14 @@ public class FlightController {
                     }
                 })
                 .build();
+
+        // OR just create publisher object once and manually publish
+        // oxygenMaskPublisher.publish();
+
+        // TODO: optimization - set msg generator instead of creating new threads
+//        oxygenMaskPublisher.setMessageGenerator(p -> {
+//
+//        });
 
         new Thread(oxygenMaskPublisher).start();
     }

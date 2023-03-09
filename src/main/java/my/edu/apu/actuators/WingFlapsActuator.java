@@ -33,21 +33,20 @@ public class WingFlapsActuator {
                     long controlToActuatorResponseTime =
                             System.currentTimeMillis() - packet.getTimestampFromControl();
 
-                    try (FileWriter fw = new FileWriter(Constants.WING_FLAPS_ROUTING_KEY + ".csv", true);
-                         BufferedWriter bw = new BufferedWriter(fw);
-                         PrintWriter out = new PrintWriter(bw)) {
-                        out.printf(
-                                "%s,%s,%d,%d,%d%n",
-                                packet.getSensor(),
-                                c.getRoutingKey(),
-                                sensorToControlResponseTime,
-                                controlToActuatorResponseTime,
-                                sensorToControlResponseTime + controlToActuatorResponseTime
-                        );
-                    } catch (IOException e) {
-                        //exception handling left as an exercise for the reader
-                    }
-
+//                    try (FileWriter fw = new FileWriter(Constants.WING_FLAPS_ROUTING_KEY + ".csv", true);
+//                         BufferedWriter bw = new BufferedWriter(fw);
+//                         PrintWriter out = new PrintWriter(bw)) {
+//                        out.printf(
+//                                "%s,%s,%d,%d,%d%n",
+//                                packet.getSensor(),
+//                                c.getRoutingKey(),
+//                                sensorToControlResponseTime,
+//                                controlToActuatorResponseTime,
+//                                sensorToControlResponseTime + controlToActuatorResponseTime
+//                        );
+//                    } catch (IOException e) {
+//                        //exception handling left as an exercise for the reader
+//                    }
 
                     c.getChannel().basicPublish(
                             Constants.ACTUATOR_TO_SENSOR_EXCHANGE,

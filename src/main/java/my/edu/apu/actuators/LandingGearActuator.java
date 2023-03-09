@@ -29,21 +29,20 @@ public class LandingGearActuator {
                     long controlToActuatorResponseTime =
                             System.currentTimeMillis() - packet.getTimestampFromControl();
 
-                    try (FileWriter fw = new FileWriter(Constants.LANDING_GEAR_ROUTING_KEY + ".csv", true);
-                         BufferedWriter bw = new BufferedWriter(fw);
-                         PrintWriter out = new PrintWriter(bw)) {
-                        out.printf(
-                                "%s,%s,%d,%d,%d%n",
-                                packet.getSensor(),
-                                c.getRoutingKey(),
-                                sensorToControlResponseTime,
-                                controlToActuatorResponseTime,
-                                sensorToControlResponseTime + controlToActuatorResponseTime
-                        );
-                    } catch (IOException e) {
-                        //exception handling left as an exercise for the reader
-                    }
-
+//                    try (FileWriter fw = new FileWriter(Constants.LANDING_GEAR_ROUTING_KEY + ".csv", true);
+//                         BufferedWriter bw = new BufferedWriter(fw);
+//                         PrintWriter out = new PrintWriter(bw)) {
+//                        out.printf(
+//                                "%s,%s,%d,%d,%d%n",
+//                                packet.getSensor(),
+//                                c.getRoutingKey(),
+//                                sensorToControlResponseTime,
+//                                controlToActuatorResponseTime,
+//                                sensorToControlResponseTime + controlToActuatorResponseTime
+//                        );
+//                    } catch (IOException e) {
+//                        //exception handling left as an exercise for the reader
+//                    }
                 })
                 .build();
 
