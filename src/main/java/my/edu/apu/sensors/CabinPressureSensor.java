@@ -24,13 +24,13 @@ public class CabinPressureSensor {
                     long currentTimestamp = System.currentTimeMillis();
                     currentIterations++;
 
-//                    currentCabinPressure += Math.floor((Math.random() * 100) - 50);
+                    currentCabinPressure += Math.floor((Math.random() * 100) - 50);
 
-                    if (currentIterations > 60 && currentCabinPressure < 10000) {
-                        currentCabinPressure += Math.floor((Math.random() * 1000));
-                    } else {
-                        currentCabinPressure += Math.floor((Math.random() * 100) - 50);
-                    }
+//                    if (currentIterations > 60 && currentCabinPressure < 10000) {
+//                        currentCabinPressure += Math.floor((Math.random() * 1000));
+//                    } else {
+//                        currentCabinPressure += Math.floor((Math.random() * 100) - 50);
+//                    }
 
                     if (currentCabinPressure <= 0) {
                         currentCabinPressure = 0;

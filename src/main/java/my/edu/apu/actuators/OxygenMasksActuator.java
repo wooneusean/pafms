@@ -26,11 +26,11 @@ public class OxygenMasksActuator {
                             packet.getValue() == 0 ? "hidden" : "deployed"
                     );
 
-                    long sensorToControlResponseTime =
-                            packet.getTimestampFromControl() - packet.getTimestampFromSensor();
-                    long controlToActuatorResponseTime =
-                            System.currentTimeMillis() - packet.getTimestampFromControl();
-
+//                    long sensorToControlResponseTime =
+//                            packet.getTimestampFromControl() - packet.getTimestampFromSensor();
+//                    long controlToActuatorResponseTime =
+//                            System.currentTimeMillis() - packet.getTimestampFromControl();
+//
 //                    try (FileWriter fw = new FileWriter(Constants.OXYGEN_MASKS_ROUTING_KEY + ".csv", true);
 //                         BufferedWriter bw = new BufferedWriter(fw);
 //                         PrintWriter out = new PrintWriter(bw)) {

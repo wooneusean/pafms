@@ -24,11 +24,11 @@ public class LandingGearActuator {
                     String landingGearState = packet.getValue() == 1 ? "DOWN" : "UP";
                     System.out.println("[i] Landing gear is set to " + landingGearState);
 
-                    long sensorToControlResponseTime =
-                            packet.getTimestampFromControl() - packet.getTimestampFromSensor();
-                    long controlToActuatorResponseTime =
-                            System.currentTimeMillis() - packet.getTimestampFromControl();
-
+//                    long sensorToControlResponseTime =
+//                            packet.getTimestampFromControl() - packet.getTimestampFromSensor();
+//                    long controlToActuatorResponseTime =
+//                            System.currentTimeMillis() - packet.getTimestampFromControl();
+//
 //                    try (FileWriter fw = new FileWriter(Constants.LANDING_GEAR_ROUTING_KEY + ".csv", true);
 //                         BufferedWriter bw = new BufferedWriter(fw);
 //                         PrintWriter out = new PrintWriter(bw)) {
