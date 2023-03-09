@@ -6,7 +6,6 @@ import my.edu.apu.rabbitmq.ExchangePublisher;
 import my.edu.apu.rabbitmq.Publishable;
 import my.edu.apu.shared.ActuatorToSensorPacket;
 import my.edu.apu.shared.Constants;
-import my.edu.apu.shared.SensoryToControlPacket;
 
 import java.io.IOException;
 import java.util.concurrent.Executors;
@@ -41,10 +40,11 @@ public class AltitudeSensor {
                     );
 
                     try {
-                        publisher.publish(new SensoryToControlPacket(
+                        publisher.publish(String.join(
+                                "|",
                                 Constants.ALTITUDE_SENSOR_ROUTING_KEY,
-                                currentAltitude,
-                                currentTimestamp
+                                String.valueOf(currentAltitude),
+                                String.valueOf(currentTimestamp)
                         ).getBytes());
                     } catch (IOException e) {
                         throw new RuntimeException(e);
@@ -57,8 +57,8 @@ public class AltitudeSensor {
                 .withExchangeType(BuiltinExchangeType.DIRECT)
                 .withRoutingKey(Constants.ALTITUDE_SENSOR_ROUTING_KEY)
                 .withDeliveryCallback(c -> (s, delivery) -> {
-                    ActuatorToSensorPacket packet = Publishable.fromBytes(delivery.getBody());
-                    currentWingAngle = packet.getValue();
+                    String[] packet = new String(delivery.getBody()).split("\\|");
+                    currentWingAngle = Integer.parseInt(packet[1]);
                 })
                 .build();
 

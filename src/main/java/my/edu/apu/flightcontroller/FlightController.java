@@ -54,6 +54,7 @@ public class FlightController {
     }
 
     public static void main(String[] args) throws IOException, TimeoutException {
+        // TODO: Change packet objects to strings
         ExchangeConsumer flightControlConsumer = new ExchangeConsumer.Builder()
                 .withExchangeName(Constants.SENSORY_TO_CONTROL_EXCHANGE)
                 .withExchangeType(BuiltinExchangeType.DIRECT)

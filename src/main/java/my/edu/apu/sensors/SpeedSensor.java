@@ -40,10 +40,11 @@ public class SpeedSensor {
                     );
 
                     try {
-                        publisher.publish(new SensoryToControlPacket(
+                        publisher.publish(String.join(
+                                "|",
                                 Constants.SPEED_SENSOR_ROUTING_KEY,
-                                currentSpeed,
-                                currentTimestamp
+                                String.valueOf(currentSpeed),
+                                String.valueOf(currentTimestamp)
                         ).getBytes());
                     } catch (IOException e) {
                         throw new RuntimeException(e);
@@ -56,8 +57,8 @@ public class SpeedSensor {
                 .withExchangeType(BuiltinExchangeType.DIRECT)
                 .withRoutingKey(Constants.SPEED_SENSOR_ROUTING_KEY)
                 .withDeliveryCallback(c -> (s, delivery) -> {
-                    ActuatorToSensorPacket packet = Publishable.fromBytes(delivery.getBody());
-                    currentEngineThrottle = packet.getValue();
+                    String[] packet = new String(delivery.getBody()).split("\\|");
+                    currentEngineThrottle = Integer.parseInt(packet[1]);
                 })
                 .build();
 

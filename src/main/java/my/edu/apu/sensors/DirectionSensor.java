@@ -36,10 +36,11 @@ public class DirectionSensor {
                     );
 
                     try {
-                        publisher.publish(new SensoryToControlPacket(
+                        publisher.publish(String.join(
+                                "|",
                                 Constants.DIRECTION_SENSOR_ROUTING_KEY,
-                                currentDirection,
-                                currentTimestamp
+                                String.valueOf(currentDirection),
+                                String.valueOf(currentTimestamp)
                         ).getBytes());
                     } catch (IOException e) {
                         throw new RuntimeException(e);
@@ -52,8 +53,8 @@ public class DirectionSensor {
                 .withExchangeType(BuiltinExchangeType.DIRECT)
                 .withRoutingKey(Constants.DIRECTION_SENSOR_ROUTING_KEY)
                 .withDeliveryCallback(c -> (s, delivery) -> {
-                    ActuatorToSensorPacket packet = Publishable.fromBytes(delivery.getBody());
-                    currentTailAngle = packet.getValue();
+                    String[] packet = new String(delivery.getBody()).split("\\|");
+                    currentTailAngle = Integer.parseInt(packet[1]);
                 })
                 .build();
 

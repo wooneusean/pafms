@@ -44,10 +44,11 @@ public class CabinPressureSensor {
                     );
 
                     try {
-                        publisher.publish(new SensoryToControlPacket(
+                        publisher.publish(String.join(
+                                "|",
                                 Constants.CABIN_PRESSURE_SENSOR_ROUTING_KEY,
-                                currentCabinPressure,
-                                currentTimestamp
+                                String.valueOf(currentCabinPressure),
+                                String.valueOf(currentTimestamp)
                         ).getBytes());
                     } catch (IOException e) {
                         throw new RuntimeException(e);
