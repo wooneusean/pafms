@@ -2,15 +2,13 @@ package my.edu.apu.actuators;
 
 import com.rabbitmq.client.BuiltinExchangeType;
 import my.edu.apu.rabbitmq.ExchangeConsumer;
-import my.edu.apu.rabbitmq.Publishable;
-import my.edu.apu.shared.ActuatorToSensorPacket;
 import my.edu.apu.shared.Constants;
-import my.edu.apu.shared.ControlToActuatorPacket;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeoutException;
 
 public class WingFlapsActuator {
@@ -21,24 +19,25 @@ public class WingFlapsActuator {
                 .withExchangeType(BuiltinExchangeType.DIRECT)
                 .withRoutingKey(Constants.WING_FLAPS_ROUTING_KEY)
                 .withDeliveryCallback(c -> (s, delivery) -> {
-                    ControlToActuatorPacket packet = Publishable.fromBytes(delivery.getBody());
+                    // [sensorRoutingKey, value, timestampFromSensor, timestampFromControl]
+                    String[] message = new String(delivery.getBody(), StandardCharsets.UTF_8).split("\\|");
 
                     System.out.printf(
                             "[.] Setting wing flap angle to '%s'%n",
-                            packet.getValue()
+                            message[1]
                     );
 
-//                    long sensorToControlResponseTime =
-//                            packet.getTimestampFromControl() - packet.getTimestampFromSensor();
-//                    long controlToActuatorResponseTime =
-//                            System.currentTimeMillis() - packet.getTimestampFromControl();
+//                    long timestampFromControl = Long.parseLong(message[3]);
+//                    long timestampFromSensor = Long.parseLong(message[2]);
+//                    long sensorToControlResponseTime = timestampFromControl - timestampFromSensor;
+//                    long controlToActuatorResponseTime = System.currentTimeMillis() - timestampFromControl;
 //
-//                    try (FileWriter fw = new FileWriter(Constants.WING_FLAPS_ROUTING_KEY + ".csv", true);
+//                    try (FileWriter fw = new FileWriter(c.getRoutingKey() + ".csv", true);
 //                         BufferedWriter bw = new BufferedWriter(fw);
 //                         PrintWriter out = new PrintWriter(bw)) {
 //                        out.printf(
 //                                "%s,%s,%d,%d,%d%n",
-//                                packet.getSensor(),
+//                                message[0],
 //                                c.getRoutingKey(),
 //                                sensorToControlResponseTime,
 //                                controlToActuatorResponseTime,
@@ -52,12 +51,13 @@ public class WingFlapsActuator {
                             Constants.ACTUATOR_TO_SENSOR_EXCHANGE,
                             Constants.ALTITUDE_SENSOR_ROUTING_KEY,
                             null,
-                            new ActuatorToSensorPacket(
+                            String.join(
+                                    "|",
                                     Constants.WING_FLAPS_ROUTING_KEY,
-                                    packet.getValue(),
-                                    packet.getTimestampFromSensor(),
-                                    packet.getTimestampFromControl(),
-                                    System.currentTimeMillis()
+                                    message[1],
+                                    message[2],
+                                    message[3],
+                                    String.valueOf(System.currentTimeMillis())
                             ).getBytes()
                     );
                 })

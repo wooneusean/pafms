@@ -3,7 +3,6 @@ package my.edu.apu.sensors;
 import com.rabbitmq.client.BuiltinExchangeType;
 import my.edu.apu.rabbitmq.ExchangePublisher;
 import my.edu.apu.shared.Constants;
-import my.edu.apu.shared.SensoryToControlPacket;
 
 import java.io.IOException;
 import java.util.concurrent.Executors;

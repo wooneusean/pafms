@@ -3,10 +3,7 @@ package my.edu.apu.sensors;
 import com.rabbitmq.client.BuiltinExchangeType;
 import my.edu.apu.rabbitmq.ExchangeConsumer;
 import my.edu.apu.rabbitmq.ExchangePublisher;
-import my.edu.apu.rabbitmq.Publishable;
-import my.edu.apu.shared.ActuatorToSensorPacket;
 import my.edu.apu.shared.Constants;
-import my.edu.apu.shared.SensoryToControlPacket;
 
 import java.io.IOException;
 import java.util.concurrent.Executors;
@@ -57,6 +54,7 @@ public class SpeedSensor {
                 .withExchangeType(BuiltinExchangeType.DIRECT)
                 .withRoutingKey(Constants.SPEED_SENSOR_ROUTING_KEY)
                 .withDeliveryCallback(c -> (s, delivery) -> {
+                    // [actuatorRoutingKey, value, timestampFromSensor, timestampFromControl, timestampFromActuator]
                     String[] packet = new String(delivery.getBody()).split("\\|");
                     currentEngineThrottle = Integer.parseInt(packet[1]);
                 })
